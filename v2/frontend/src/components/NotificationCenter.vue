@@ -50,7 +50,8 @@
               <div class="flex-shrink-0">
                 <component
                   :is="getNotificationIcon(notification.type)"
-                  class="h-5 w-5 text-gray-400"
+                  class="h-5 w-5"
+                  :class="getNotificationIconColor(notification.type)"
                 />
               </div>
 
@@ -104,7 +105,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { BellIcon } from '@heroicons/vue/24/outline'
 import {
   InformationCircleIcon,
@@ -113,99 +114,17 @@ import {
 } from '@heroicons/vue/24/solid'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
+import { useNotificationStore } from '@/stores/notifications'
+import { wsService } from '@/services/websocket'
 
+const notificationStore = useNotificationStore()
 const isOpen = ref(false)
-const unreadCount = ref(0)
-const notifications = ref([])
-let pollingInterval
 
-// Simuler des notifications pour la démo
-const mockNotifications = [
-  {
-    id: 1,
-    type: 'info',
-    message: 'Nouvelle mise à jour disponible',
-    read: false,
-    createdAt: new Date(Date.now() - 1000 * 60 * 5) // 5 minutes ago
-  },
-  {
-    id: 2,
-    type: 'success',
-    message: 'Votre profil a été mis à jour',
-    read: true,
-    createdAt: new Date(Date.now() - 1000 * 60 * 30) // 30 minutes ago
-  },
-  {
-    id: 3,
-    type: 'warning',
-    message: 'Votre abonnement expire bientôt',
-    read: false,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60) // 1 hour ago
-  }
-]
-
-onMounted(() => {
-  // Charger les notifications initiales
-  notifications.value = mockNotifications
-  updateUnreadCount()
-
-  // Démarrer le polling
-  pollingInterval = setInterval(fetchNotifications, 30000)
-
-  // Gestionnaire de clic en dehors
-  document.addEventListener('click', handleClickOutside)
-})
-
-onUnmounted(() => {
-  clearInterval(pollingInterval)
-  document.removeEventListener('click', handleClickOutside)
-})
+const notifications = computed(() => notificationStore.notifications)
+const unreadCount = computed(() => notificationStore.unreadCount)
 
 const toggleNotifications = () => {
   isOpen.value = !isOpen.value
-}
-
-const handleClickOutside = (event) => {
-  const notificationCenter = event.target.closest('.notification-center')
-  if (!notificationCenter && isOpen.value) {
-    isOpen.value = false
-  }
-}
-
-const updateUnreadCount = () => {
-  unreadCount.value = notifications.value.filter(n => !n.read).length
-}
-
-const fetchNotifications = async () => {
-  try {
-    // TODO: Implémenter la récupération des notifications depuis l'API
-    console.log('Récupération des notifications...')
-  } catch (error) {
-    console.error('Erreur lors de la récupération des notifications:', error)
-  }
-}
-
-const markAsRead = async (id) => {
-  try {
-    const notification = notifications.value.find(n => n.id === id)
-    if (notification) {
-      notification.read = true
-      updateUnreadCount()
-      // TODO: Appeler l'API pour marquer comme lu
-    }
-  } catch (error) {
-    console.error('Erreur lors du marquage comme lu:', error)
-  }
-}
-
-const markAllAsRead = async () => {
-  try {
-    notifications.value.forEach(n => n.read = true)
-    updateUnreadCount()
-    // TODO: Appeler l'API pour tout marquer comme lu
-  } catch (error) {
-    console.error('Erreur lors du marquage de toutes les notifications:', error)
-  }
 }
 
 const getNotificationIcon = (type) => {
@@ -214,13 +133,66 @@ const getNotificationIcon = (type) => {
       return CheckCircleIcon
     case 'warning':
       return ExclamationCircleIcon
+    case 'error':
+      return ExclamationCircleIcon
     case 'info':
     default:
       return InformationCircleIcon
   }
 }
 
-const formatDate = (date) => {
-  return formatDistanceToNow(new Date(date), { addSuffix: true, locale: fr })
+const getNotificationIconColor = (type) => {
+  switch (type) {
+    case 'success':
+      return 'text-green-400'
+    case 'warning':
+      return 'text-yellow-400'
+    case 'error':
+      return 'text-red-400'
+    case 'info':
+    default:
+      return 'text-blue-400'
+  }
 }
+
+const formatDate = (date) => {
+  return formatDistanceToNow(new Date(date), {
+    addSuffix: true,
+    locale: fr
+  })
+}
+
+const markAsRead = async (id) => {
+  try {
+    await notificationStore.markAsRead(id)
+  } catch (error) {
+    console.error('Erreur lors du marquage comme lu:', error)
+  }
+}
+
+const markAllAsRead = async () => {
+  try {
+    await notificationStore.markAllAsRead()
+  } catch (error) {
+    console.error('Erreur lors du marquage de toutes les notifications:', error)
+  }
+}
+
+// Gestionnaire de clic en dehors
+const handleClickOutside = (event) => {
+  const notificationCenter = event.target.closest('.notification-center')
+  if (!notificationCenter && isOpen.value) {
+    isOpen.value = false
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+  wsService.connect()
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+  wsService.disconnect()
+})
 </script>

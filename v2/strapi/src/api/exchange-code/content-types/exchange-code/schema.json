@@ -1,0 +1,58 @@
+{
+  "kind": "collectionType",
+  "collectionName": "exchange_codes",
+  "info": {
+    "singularName": "exchange-code",
+    "pluralName": "exchange-codes",
+    "displayName": "Exchange Code",
+    "description": "Codes d'échange et d'activation"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "code": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "activation",
+        "renewal",
+        "credit"
+      ],
+      "required": true
+    },
+    "value": {
+      "type": "decimal",
+      "required": true,
+      "min": 0
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "active",
+        "used",
+        "disabled"
+      ],
+      "default": "active",
+      "required": true
+    },
+    "usedBy": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "usedAt": {
+      "type": "datetime"
+    },
+    "expiresAt": {
+      "type": "datetime"
+    },
+    "metadata": {
+      "type": "json"
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "kind": "collectionType",
+  "collectionName": "servers",
+  "info": {
+    "singularName": "server",
+    "pluralName": "servers",
+    "displayName": "Server",
+    "description": "Serveurs Emby disponibles"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "url": {
+      "type": "string",
+      "required": true
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "online",
+        "offline",
+        "maintenance"
+      ],
+      "default": "offline",
+      "required": true
+    },
+    "priority": {
+      "type": "integer",
+      "default": 0,
+      "min": 0
+    },
+    "isPublic": {
+      "type": "boolean",
+      "default": true
+    },
+    "metadata": {
+      "type": "json"
+    },
+    "preferredBy": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "preferredServers"
+    }
+  }
+}
