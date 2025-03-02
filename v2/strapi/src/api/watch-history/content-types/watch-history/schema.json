@@ -1,0 +1,41 @@
+
+{
+  "kind": "collectionType",
+  "collectionName": "watch_histories",
+  "info": {
+    "singularName": "watch-history",
+    "pluralName": "watch-histories",
+    "displayName": "Watch History",
+    "description": "Historique de visionnage"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "watchHistory"
+    },
+    "media": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::media.media",
+      "inversedBy": "watchHistory"
+    },
+    "progress": {
+      "type": "float",
+      "min": 0,
+      "max": 100,
+      "default": 0
+    },
+    "watchedAt": {
+      "type": "datetime"
+    },
+    "completed": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

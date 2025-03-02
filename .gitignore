@@ -10,3 +10,4 @@ Thumbs.db
 /.settings
 /.buildpath
 /.project
+/v2/frontend/node_modules

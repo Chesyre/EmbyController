@@ -89,15 +89,11 @@
 ## 开发
 
 1. **克隆仓库**：
-    ```sh
     git clone https://github.com/RandallAnjie/EmbyController.git
     cd EmbyController
-    ```
 
 2. **安装依赖**：
-    ```sh
     composer install
-    ```
 
 3. **配置环境**：
    - 将 `example.env` 复制成 `.env` 。
@@ -109,9 +105,7 @@
    - 默认用户名/密码：admin/A123456
 
 5. **启动开发服务器**：
-    ```sh
     php think run
-    ```
 
 ## 贡献
 

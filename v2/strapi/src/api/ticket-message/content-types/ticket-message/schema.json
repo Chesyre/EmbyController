@@ -1,0 +1,46 @@
+
+{
+  "kind": "collectionType",
+  "collectionName": "ticket_messages",
+  "info": {
+    "singularName": "ticket-message",
+    "pluralName": "ticket-messages",
+    "displayName": "Ticket Message",
+    "description": "Messages in support tickets"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "content": {
+      "type": "text",
+      "required": true
+    },
+    "ticket": {
+      "type": "relation", 
+      "relation": "manyToOne",
+      "target": "api::ticket.ticket",
+      "inversedBy": "messages"
+    },
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne", 
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "ticketMessages"
+    },
+    "isFromStaff": {
+      "type": "boolean",
+      "default": false
+    },
+    "attachments": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos"
+      ]
+    }
+  }
+}
